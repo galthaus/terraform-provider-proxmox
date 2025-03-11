@@ -33,6 +33,7 @@ import (
 	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/resource/guest/qemu/network"
 	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/resource/guest/qemu/pci"
 	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/resource/guest/qemu/serial"
+	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/resource/guest/qemu/tpm"
 	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/resource/guest/qemu/usb"
 	"github.com/Telmate/terraform-provider-proxmox/v2/proxmox/Internal/util"
 )
@@ -398,6 +399,7 @@ func resourceVmQemu() *schema.Resource {
 			pci.RootLegacyPCI: pci.SchemaLegacyPCI(),
 			pci.RootPCI:       pci.SchemaPCI(),
 			pci.RootPCIs:      pci.SchemaPCIs(),
+			tpm.Root:          tpm.Schema(),
 			"efidisk": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -732,6 +734,7 @@ func resourceVmQemuCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		Serials:     serial.SDK(d),
 		Smbios1:     BuildSmbiosArgs(d.Get("smbios").([]interface{})),
 		CloudInit:   mapToSDK_CloudInit(d),
+		TPM:         tpm.SDK(d),
 	}
 
 	var diags, tmpDiags diag.Diagnostics
@@ -978,6 +981,7 @@ func resourceVmQemuUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		Serials:     serial.SDK(d),
 		Smbios1:     BuildSmbiosArgs(d.Get("smbios").([]interface{})),
 		CloudInit:   mapToSDK_CloudInit(d),
+		TPM:         tpm.SDK(d),
 	}
 	if len(qemuVgaList) > 0 {
 		config.QemuVga = qemuVgaList[0].(map[string]interface{})
